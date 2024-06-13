@@ -1,0 +1,676 @@
+import "./App.css";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import RegisterForm from "./components/Register";
+import UserProfile from "./components/UserProfile";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<RegisterForm/>} />
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/userprofile" element={<UserProfile/>} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+import React, { useState } from "react";
+import { TextField, Typography, Box } from "@mui/material";
+import Button from "react-bootstrap/Button";
+import { Container } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import "../LoginForm.css";
+import { ToastContainer, toast } from "react-toastify";
+
+const LoginForm = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/users");
+      const users = await response.json();
+      const user = users.find(
+        (user) => user.username === username && user.password === password
+      );
+      if (user) {
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        navigate("/dashboard");
+        toast.success("Login successful!");
+        alert("Login Success!");
+      } else {
+        console.log("Invalid username or password");
+        toast.error("Invalid username or password");
+        alert("Login Failed!");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again.");
+      console.error("Error:", error);
+      alert("Login Failed!");
+    }
+  };
+
+  return (
+    <Container fluid className="login-container">
+      <ToastContainer />
+      <Box className="login-box">
+        <Box className="login-form">
+          <Typography variant="h4" component="h1" gutterBottom>
+            Hello!
+          </Typography>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Sign in to your account
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box component="span" className="input-icon">
+                    <i className="fa fa-envelope" aria-hidden="true"></i>
+                  </Box>
+                ),
+              }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box component="span" className="input-icon">
+                    <i className="fa fa-lock" aria-hidden="true"></i>
+                  </Box>
+                ),
+              }}
+            />
+            <Box className="form-footer">
+              <div>
+                <strong>Forgot password is temporarily disabled</strong>
+              </div>
+              <Box component="label">
+                <input type="checkbox" name="remember" /> Remember me
+              </Box>
+              <Box component="a" href="#" className="forgot-password">
+                Forgot password?
+              </Box>
+            </Box>
+            <Button type="submit" variant="primary" className="login-button">
+              SIGN IN
+            </Button>
+          </form>
+          <Box className="create-account">
+            Don't have an account? <a href="/register">Create</a>
+          </Box>
+        </Box>
+        <Box className="login-welcome">
+          <Typography variant="h4" component="h1" gutterBottom>
+            Welcome Back!
+          </Typography>
+          <Typography variant="body1">
+            Aspireit Task done using React JS <br /> Developed & Designed by
+            Kevin Matthew Franklin
+          </Typography>
+        </Box>
+      </Box>
+    </Container>
+  );
+};
+
+export default LoginForm;
+
+import React, { useState } from "react";
+import { TextField, Typography, Box } from "@mui/material";
+import Button from "react-bootstrap/Button";
+import { Container } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import "../RegisterForm.css";
+import { ToastContainer, toast } from "react-toastify";
+
+const RegisterForm = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password, email }),
+      });
+      if (response.ok) {
+        navigate("/");
+        toast.success("Registered Successfully!");
+        alert("Registered Successfully");
+      } else {
+        console.log("Failed to create user");
+        toast.error("Failed to create user, Try again");
+        alert("Failed to create a user, Try again");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to create user, Try again");
+    }
+  };
+
+  return (
+    <Container fluid className="register-container">
+      <ToastContainer />
+      <Box className="register-box">
+        <Box className="register-form">
+          <Typography variant="h4" component="h1" gutterBottom>
+            Welcome!
+          </Typography>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Create a new account
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box component="span" className="input-icon">
+                    <i className="fa fa-user" aria-hidden="true"></i>
+                  </Box>
+                ),
+              }}
+            />
+            <TextField
+              label="E-mail"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box component="span" className="input-icon">
+                    <i className="fa fa-envelope" aria-hidden="true"></i>
+                  </Box>
+                ),
+              }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box component="span" className="input-icon">
+                    <i className="fa fa-lock" aria-hidden="true"></i>
+                  </Box>
+                ),
+              }}
+            />
+            <Button type="submit" variant="primary" className="register-button">
+              SIGN UP
+            </Button>
+          </form>
+          <Box className="login-link">
+            Already have an account? <a href="/">Sign In</a>
+          </Box>
+        </Box>
+        <Box className="register-welcome">
+          <Typography variant="h4" component="h1" gutterBottom>
+            Welcome Back!
+          </Typography>
+          <Typography variant="body1">
+            {" "}
+            Aspireit Task done using React JS <br /> Developed & Designed by
+            Kevin Matthew Franklin
+          </Typography>
+        </Box>
+      </Box>
+    </Container>
+  );
+};
+
+export default RegisterForm;
+
+import React from 'react';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import Pugal from '../assets/pugalgamer.jpg';
+import Viwin from '../assets/viwin.jpg';
+import Asim from '../assets/asim.jpg';
+import Kevin from '../assets/kevinmatthewfranklin.jpg';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
+
+
+const UserDataCard = () => {
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  let userImage;
+
+  // Determine which image to display based on the username
+  switch (loggedInUser.username) {
+    case 'Pugal':
+      userImage = Pugal;
+      break;
+    case 'Viwin':
+      userImage = Viwin;
+      break;
+    case 'Asim':
+      userImage = Asim;
+      break;
+    case 'Kevin':
+      userImage = Kevin;
+      break;
+    default:
+      userImage = '';
+  }
+
+  const navigate = useNavigate();
+  return (
+    <div className="container">
+      <div className="row">
+        {[1, 2, 3, 4].map((index) => ( // Map over an array with 4 elements
+          <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+            <Card className="h-100">
+              <Card.Img variant="top" src={userImage} />
+              <Card.Body>
+                <Card.Text>
+                  Hey, <strong>{loggedInUser.username}</strong>. This "{loggedInUser.password}" is your password.
+                </Card.Text>
+                <Button variant="primary" onClick={() => navigate('/userprofile')}>Visit Profile</Button>
+              </Card.Body>
+            </Card>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default UserDataCard;
+
+import React, { useEffect, useState } from "react";
+import ButtonAppBar from "./Header.js";
+import UserDataCard from "./Card.js";
+import { ChakraProvider } from "@chakra-ui/react";
+import ChakaraTable from "./Table.js";
+
+const Dashboard = () => {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      fetchUserData(loggedInUser.id);
+    }
+  }, []);
+
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/users/${userId}`);
+      const userData = await response.json();
+      setUserData(userData);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  return (
+    <div>
+      <ButtonAppBar />
+      <br />
+      {userData && (
+        <div>
+          <h2>
+            Welcome, <strong>{userData.username}</strong>!
+          </h2>
+          {/* <p>Your Password is {userData.password}</p> */}
+        </div>
+      )}
+      <br />
+      <UserDataCard />
+      <br/>
+      <ChakraProvider>
+      <div className="m-5">
+      <ChakaraTable />
+
+      </div>
+      </ChakraProvider>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+import React, { useState } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+
+const ButtonAppBar = () => {
+  const navigate = useNavigate();
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('loggedInUser');
+    toast.success('Logout successfully');
+    alert("Logout Successfully. See you Again!");
+    navigate('/');
+  };
+
+  const toggleDrawer = (open) => () => {
+    setDrawerOpen(open);
+  };
+
+  const list = (
+    <Box
+      sx={{ width: 250 }}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
+    >
+      <List>
+        <ListItem button>
+          <ListItemText primary="Home" onClick={() => navigate('/dashboard')} />
+        </ListItem>
+        <ListItem button>
+          <ListItemText primary="Profile" onClick={() => navigate('/userprofile')} />
+        </ListItem>
+      </List>
+      <Divider />
+      <List>
+        <ListItem button onClick={handleLogout}>
+          <ListItemText primary="Logout" />
+        </ListItem>
+      </List>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <ToastContainer />
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={toggleDrawer(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {loggedInUser && `Welcome, ${loggedInUser.username}`}
+          </Typography>
+          <Button color="inherit" onClick={handleLogout}>Logout</Button>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+      >
+        {list}
+      </Drawer>
+    </Box>
+  );
+};
+
+export default ButtonAppBar;
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+} from "@chakra-ui/react";
+
+const ChakaraTable = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/users');
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  return (
+    <div>
+      <TableContainer>
+        <Table variant='striped' colorScheme='teal'>
+          <TableCaption>All users in the database are shown in the Chakara UI Table</TableCaption>
+          <Thead>
+            <Tr>
+              <Th><strong>Username</strong></Th>
+              <Th><strong>Password</strong></Th>
+              <Th><strong>Email</strong></Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {users.map(user => (
+              <Tr key={user.id}>
+                <Td>{user.username}</Td>
+                <Td>Encrypted for all users</Td>
+                <Td>{user.email}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </div>
+  );
+}
+
+export default ChakaraTable;
+
+import React, { useState, useEffect } from "react";
+import { Form, Button, Container, Card } from "react-bootstrap";
+import ButtonAppBar from "./Header.js";
+import "../UserProfile.css";
+import { ToastContainer, toast } from 'react-toastify';
+
+const UserProfile = () => {
+  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const [userData, setUserData] = useState({
+    id: loggedInUser.id,
+    username: loggedInUser.username,
+    email: loggedInUser.email,
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+
+  useEffect(() => {
+    // Fetch user data from the '/profile' endpoint
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/users/${loggedInUser.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+        setUserData({
+          id: data.id,
+          username: data.username,
+          email: data.email,
+          newPassword: "",
+          confirmNewPassword: "",
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [loggedInUser.id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserData({
+      ...userData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (userData.newPassword === userData.confirmNewPassword) {
+      try {
+        console.log('Submitting form with user data:', userData);
+        const updatedUserData = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+        };
+
+        if (userData.newPassword) {
+          updatedUserData.password = userData.newPassword;
+        }
+
+        const response = await fetch(`http://localhost:5000/users/${userData.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(updatedUserData),
+        });
+
+        if (response.ok) {
+          console.log("Profile updated successfully");
+          toast.success("Pasword Updated Successfully!");
+          alert("Pasword Updated Successfully");
+        } else {
+          console.error("Failed to update profile");
+          alert("Profile Updation Failed");
+          toast.error("Profile Updation Failed");
+        }
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        toast.error("Profile Updation Failed");
+      }
+    } else {
+      setPasswordsMatch(false);
+    }
+  };
+
+  return (
+    <div>
+      <ButtonAppBar />
+      <Container className="profile-container">
+        <ToastContainer/>
+        <Card className="profile-card border-0 shadow p-5">
+          <Card.Body>
+            <Card.Title>User Profile</Card.Title>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="username"
+                  value={userData.username}
+                  readOnly
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formEmail">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={userData.email}
+                  readOnly
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formNewPassword">
+                <Form.Label>New Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  name="newPassword"
+                  value={userData.newPassword}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formConfirmNewPassword">
+                <Form.Label>Confirm New Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  name="confirmNewPassword"
+                  value={userData.confirmNewPassword}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+              {!passwordsMatch && (
+                <div className="text-danger">Passwords do not match</div>
+              )}
+              <br />
+              <Button variant="primary" type="submit" className="ml-2">
+                Save
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Container>
+    </div>
+  );
+};
+
+export default UserProfile;
